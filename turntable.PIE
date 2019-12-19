@@ -1,0 +1,60 @@
+//based of some dude's alteration of the ghwt script
+// (sorry, couldn't find your post again to get your name)
+
+debug="<"+wiimote.Exists+"> "
+
+if(wiimote.Exists) then
+if(key.Space) then
+debug+=" *** POKE!! ***"
+var.space=true
+var.ini=true
+endif
+if(!var.space) debug+=" Safe to connect. Press SPACE to poke"
+else
+debug+=" ..waiting to connect.."
+endif
+
+if(var.ini) then
+debug+=" Active :D"
+if(!var.init) then
+WiimotePoke(1, 0x4A400F0, 0x55) // Decrypt
+wait 100ms
+WiimotePoke(1, 0x4A400FB, 0) // Unknown
+wait 100ms
+WiimotePoke(1, 0x4A40040, 0)
+wait 100ms
+WiimoteSend(1, 0x17, 0x04, 0xA4, 0x00, 0xF0, 0, 16) // get type
+var.init = true
+endif
+
+var.SX = (wiimote.Exp0 & 0x3F) - 32
+var.SY = (wiimote.Exp1 & 0x3F) - 31
+var.BE = !(wiimote.Exp5 & 0x10)
+var.BM = !(wiimote.Exp4 & 0x10)
+var.BP = !(wiimote.Exp4 & 0x04)
+var.ED = ((wiimote.Exp2 & 0x60) >> 2) + ((wiimote.Exp3 & 0xE0) >> 5)
+var.CS = ((wiimote.Exp2 & 0x1E) >> 1) - 8
+var.RTT =((wiimote.Exp0 & 0xC0) >> 3) + ((wiimote.Exp1 & 0xC0) >> 5) + ((wiimote.Exp2 & 0x80) >> 7)
+if (wiimote.Exp2 & 0x01) var.RTT = var.RTT - 32
+var.RBG =!(wiimote.Exp5 & 0x20)
+var.RBR =!(wiimote.Exp4 & 0x02)
+var.RBB =!(wiimote.Exp5 & 0x04)
+var.LTT = (wiimote.Exp3 & 0x1F)
+if (wiimote.Exp4 & 0x01) var.LTT = var.LTT - 32
+var.LBG =!(wiimote.Exp5 & 0x08)
+var.LBR =!(wiimote.Exp4 & 0x20)
+var.LBB =!(wiimote.Exp5 & 0x80)
+if(var.CS<0)var.CS++
+endif
+Keyboard.V = var.RBG
+Keyboard.C= var.RBR
+Keyboard.X = var.RBB
+Keyboard.Z= var.SX
+Keyboard.LeftShift = var.BE
+Keyboard.Enter= var.BP
+if (var.CS == 7)
+Keyboard.Slash = var.CS
+endif
+if (var.CS < 7)
+Keyboard.Slash = false
+endif
